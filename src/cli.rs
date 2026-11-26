@@ -2,7 +2,7 @@ use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[command(name = "unsub-nojira")]
-#[command(about = "Remove yourself from Bitbucket PRs with 'NOJIRA' in the title", long_about = None)]
+#[command(about = "Remove yourself from Bitbucket PRs with 'NOJIRA' in the title, or that already have 2+ approvals from others", long_about = None)]
 pub struct Cli {
     /// Bitbucket user slug (username)
     pub username: String,

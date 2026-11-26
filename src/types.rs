@@ -10,8 +10,9 @@ pub struct Config {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct User {
     pub slug: String,
+    #[serde(default)]
     pub name: String,
-    #[serde(rename = "displayName")]
+    #[serde(rename = "displayName", default)]
     pub display_name: String,
 }
 
@@ -26,15 +27,22 @@ pub struct Repository {
 pub struct PullRequest {
     pub id: u64,
     pub title: String,
+    #[serde(default)]
+    pub reviewers: Vec<Participant>,
+    #[serde(default)]
+    pub participants: Vec<Participant>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Participant {
     pub user: User,
     #[allow(dead_code)]
+    #[serde(default)]
     pub role: String,
-    #[allow(dead_code)]
+    #[serde(default)]
     pub approved: bool,
+    #[serde(default)]
+    pub status: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
