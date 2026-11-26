@@ -117,7 +117,12 @@ mod tests {
     fn three_other_approvals_removes() {
         let pr = pr(
             "Add feature",
-            vec![unapproved("me"), approved("a"), approved("b"), approved("c")],
+            vec![
+                unapproved("me"),
+                approved("a"),
+                approved("b"),
+                approved("c"),
+            ],
             vec![],
         );
         assert_eq!(decide(&pr, "me"), Decision::Approved { others: 3 });

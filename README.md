@@ -1,11 +1,15 @@
 # unsub-nojira
 
-A CLI tool to automatically remove yourself from Bitbucket Server PRs with "NOJIRA" in the title.
+A CLI tool to automatically remove yourself as a reviewer from Bitbucket Server PRs that don't need you:
+
+- PRs with "NOJIRA" in the title
+- PRs that already have at least 2 approvals from other people
 
 ## Features
 
 - Remove yourself from specific repository or all repositories in a project
-- Filter PRs by "NOJIRA" in title (case-insensitive)
+- Remove yourself from PRs with "NOJIRA" in the title (case-insensitive)
+- Remove yourself from any open PR that already has 2+ approvals from others
 - Dry-run mode to preview changes before applying
 - Repository exclusion list via config file
 - Pagination support for large repositories
@@ -56,13 +60,15 @@ excluded-repo-2
 
 ### Basic Usage
 
-Remove yourself from NOJIRA PRs in a specific repository:
+> **Upgrading?** Run with `--dry-run` first. The approvals rule acts on all open PRs, not just NOJIRA ones.
+
+Remove yourself from matching PRs in a specific repository:
 
 ```bash
 unsub-nojira <username> <project-key> <repo-slug>
 ```
 
-Remove yourself from NOJIRA PRs in ALL repositories in a project:
+Remove yourself from matching PRs in ALL repositories in a project:
 
 ```bash
 unsub-nojira <username> <project-key>
@@ -99,9 +105,12 @@ unsub-nojira john.doe MYPROJ --dry-run --verbose
 2. Fetches list of repositories (if no repo specified)
 3. For each repository:
    - Fetches all open pull requests
-   - Filters PRs with "NOJIRA" in the title
-   - Checks if you're a participant on each PR
-   - Removes you as a reviewer (unless in dry-run mode)
+   - For each PR, removes you (unless in dry-run mode) if either rule matches:
+     - **NOJIRA**: the title contains "NOJIRA" and you're a participant
+     - **Approved**: at least 2 people *other than you* have approved, and you're on the reviewer list
+   - The approvals rule never counts your own approval, so removing you never drops a PR below 2 approvals
+   - The approvals rule leaves you on PRs where you've marked **Needs work**
+   - If a PR matches both rules, it's reported as NOJIRA
 4. Displays summary of operations
 
 ## Repository Exclusion
@@ -124,31 +133,31 @@ These repositories will be skipped when running without a specific repo argument
 
 ```
 Repository: frontend
-Removed john.doe from PR #123: NOJIRA - Fix styling issue
-Removed john.doe from PR #456: NOJIRA - Update dependencies
+Removed john.doe from PR #123 [NOJIRA]: NOJIRA - Fix styling issue
+Removed john.doe from PR #456 [2 approvals]: Add login page
 
 Repository: backend
-Removed john.doe from PR #789: NOJIRA - Quick hotfix
+Removed john.doe from PR #789 [3 approvals]: Refactor billing
 
 === Summary ===
   Repositories processed: 2
-  Total PRs checked: 3
-  Removed from: 3
-  Skipped: 0
+  Total PRs checked: 12
+  Removed (NOJIRA): 1
+  Removed (approved): 2
+  Left alone: 9
 ```
 
 ### Dry-Run Mode
 
 ```
-Repository: frontend
-[DRY RUN] Would remove john.doe from PR #123: NOJIRA - Fix styling issue
-[DRY RUN] Would remove john.doe from PR #456: NOJIRA - Update dependencies
+[DRY RUN] Would remove john.doe from PR #123 [NOJIRA]: NOJIRA - Fix styling issue
+[DRY RUN] Would remove john.doe from PR #456 [2 approvals]: Add login page
 
 === Summary ===
-  Repositories processed: 1
-  Total PRs checked: 2
-  Removed from: 2
-  Skipped: 0
+  Total PRs checked: 5
+  Removed (NOJIRA): 1
+  Removed (approved): 1
+  Left alone: 3
 ```
 
 ### Verbose Mode
@@ -162,20 +171,26 @@ Found 15 repositories
 Skipping excluded repository: archived-project
 
 === Processing repository: frontend ===
-Found 50 open PRs
-Found 2 PRs with 'NOJIRA' in title
+Found 4 open PRs
 
 Checking PR #123: NOJIRA - Fix styling issue
-Removed john.doe from PR #123: NOJIRA - Fix styling issue
+Removed john.doe from PR #123 [NOJIRA]: NOJIRA - Fix styling issue
 
-Checking PR #456: NOJIRA - Update dependencies
-  Skipping: john.doe is not a participant
+Checking PR #456: Add login page
+Removed john.doe from PR #456 [2 approvals]: Add login page
+
+Checking PR #457: Fix flaky test
+  Skipping: only 1 other approval(s), need 2
+
+Checking PR #458: Bump version
+  Skipping: john.doe is not a reviewer
 
 === Summary ===
-  Repositories processed: 1
-  Total PRs checked: 2
-  Removed from: 1
-  Skipped: 1
+  Repositories processed: 15
+  Total PRs checked: 4
+  Removed (NOJIRA): 1
+  Removed (approved): 1
+  Left alone: 2
 ```
 
 ## Error Handling
