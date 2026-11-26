@@ -26,6 +26,10 @@ pub struct Repository {
 pub struct PullRequest {
     pub id: u64,
     pub title: String,
+    #[serde(default)]
+    pub reviewers: Vec<Participant>,
+    #[serde(default)]
+    pub participants: Vec<Participant>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -33,8 +37,9 @@ pub struct Participant {
     pub user: User,
     #[allow(dead_code)]
     pub role: String,
-    #[allow(dead_code)]
     pub approved: bool,
+    #[serde(default)]
+    pub status: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]

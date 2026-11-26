@@ -1,6 +1,7 @@
 mod bitbucket;
 mod cli;
 mod config;
+mod rules;
 mod types;
 
 use anyhow::Result;
