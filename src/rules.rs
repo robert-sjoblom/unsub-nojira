@@ -208,4 +208,15 @@ mod tests {
         .unwrap();
         assert_eq!(pr.reviewers[0].status, None);
     }
+
+    #[test]
+    fn sparse_reviewer_entries_parse_and_count() {
+        // Entries missing name/displayName/role/approved must not fail the
+        // whole PR list (and with it the NOJIRA rule for that repo).
+        let pr: PullRequest = serde_json::from_str(
+            r#"{"id":1,"title":"x","reviewers":[{"user":{"slug":"me"}},{"user":{"slug":"a"},"approved":true}],"participants":[{"user":{"slug":"b"},"approved":true}]}"#,
+        )
+        .unwrap();
+        assert_eq!(decide(&pr, "me"), Decision::Approved { others: 2 });
+    }
 }

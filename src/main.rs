@@ -67,7 +67,7 @@ async fn main() -> Result<()> {
         let prs = match client.list_open_prs(&args.project_key, repo_slug).await {
             Ok(prs) => prs,
             Err(e) => {
-                eprintln!("Failed to fetch PRs from {}: {}", repo_slug, e);
+                eprintln!("Failed to fetch PRs from {}: {:#}", repo_slug, e);
                 continue;
             }
         };
@@ -91,7 +91,7 @@ async fn main() -> Result<()> {
                     {
                         Ok(p) => p,
                         Err(e) => {
-                            eprintln!("Failed to get participants for PR #{}: {}", pr.id, e);
+                            eprintln!("Failed to get participants for PR #{}: {:#}", pr.id, e);
                             continue;
                         }
                     };
@@ -181,7 +181,7 @@ async fn remove_from_pr(
             true
         }
         Err(e) => {
-            eprintln!("Failed to remove from PR #{}: {}", pr.id, e);
+            eprintln!("Failed to remove from PR #{}: {:#}", pr.id, e);
             false
         }
     }

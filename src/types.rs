@@ -10,8 +10,9 @@ pub struct Config {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct User {
     pub slug: String,
+    #[serde(default)]
     pub name: String,
-    #[serde(rename = "displayName")]
+    #[serde(rename = "displayName", default)]
     pub display_name: String,
 }
 
@@ -36,7 +37,9 @@ pub struct PullRequest {
 pub struct Participant {
     pub user: User,
     #[allow(dead_code)]
+    #[serde(default)]
     pub role: String,
+    #[serde(default)]
     pub approved: bool,
     #[serde(default)]
     pub status: Option<String>,
